@@ -1,14 +1,14 @@
 import type { AppBskyFeedPost } from "@atproto/api";
 import { verifyAsync } from "@noble/ed25519";
 
-// You should set this from the Bluehook response.
-const PUBLIC_KEY = process.env.BLUESKY_PUBLIC_KEY!;
-
 // Defines how the shape of the request body should be.
 type RequestBody = {
     uri: string;
     post: AppBskyFeedPost.Record;
 };
+
+// This can run on the edge :)
+export const runtime = "edge";
 
 async function handlePost(body: RequestBody) {
     // Do whatever you want here.
@@ -16,14 +16,18 @@ async function handlePost(body: RequestBody) {
     console.log(j);
 }
 
+// You should set this from the Bluehook response.
+const PUBLIC_KEY = process.env.BLUESKY_PUBLIC_KEY!;
+
 function fromHex(hex: string) {
     const bytes = new Uint8Array(hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
     return bytes;
 }
 
+const publicKeyBytes = fromHex(PUBLIC_KEY);
+
 // Function to verify Ed25519 signature
-async function verifySignature(publicKey: string, message: string, signature: string) {
-    const publicKeyBytes = fromHex(publicKey);
+async function verifySignature(message: string, signature: string) {
     const messageBytes = new TextEncoder().encode(message);
     const signatureBytes = fromHex(signature);
     try {
@@ -56,8 +60,9 @@ export async function POST(req: Request) {
     }
 
     // Verify the signature
-    const isValid = await verifySignature(PUBLIC_KEY, message, signature);
+    const isValid = await verifySignature(message, signature);
     if (!isValid) {
+        console.log("invalid signature!");
         return new Response("Bad Request - invalid signature", { status: 401 });
     }
 
