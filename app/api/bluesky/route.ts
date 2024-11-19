@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     if (!signature || !timestamp) {
         return new Response("Bad Request - no signature or timestamp", { status: 401 });
     }
+    console.log("request signature and timestamp", signature, timestamp);
     const body = await req.text();
     const message = timestamp + body;
 
