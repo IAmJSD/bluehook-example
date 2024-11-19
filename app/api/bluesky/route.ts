@@ -10,9 +10,6 @@ type RequestBody = {
     post: AppBskyFeedPost.Record;
 };
 
-// This can run on the edge :)
-export const runtime = "edge";
-
 async function handlePost(body: RequestBody) {
     // Do whatever you want here.
     const j = JSON.stringify(body, null, 2);
