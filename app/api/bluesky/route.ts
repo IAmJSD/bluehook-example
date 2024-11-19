@@ -10,10 +10,30 @@ type RequestBody = {
     post: AppBskyFeedPost.Record;
 };
 
+// This can run on the edge :)
+export const runtime = "edge";
+
 async function handlePost(body: RequestBody) {
     // Do whatever you want here.
     const j = JSON.stringify(body, null, 2);
     console.log(j);
+}
+
+function fromHex(hex: string) {
+    const bytes = new Uint8Array(hex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
+    return bytes;
+}
+
+// Function to verify Ed25519 signature
+async function verifySignature(publicKey: string, message: string, signature: string) {
+    const publicKeyBytes = fromHex(publicKey);
+    const messageBytes = new TextEncoder().encode(message);
+    const signatureBytes = fromHex(signature);
+    try {
+        return await verifyAsync(signatureBytes, messageBytes, publicKeyBytes);
+    } catch {
+        return false;
+    }
 }
 
 export async function POST(req: Request) {
@@ -39,7 +59,7 @@ export async function POST(req: Request) {
     }
 
     // Verify the signature
-    const isValid = await verifyAsync(signature, message, PUBLIC_KEY);
+    const isValid = await verifySignature(PUBLIC_KEY, message, signature);
     if (!isValid) {
         return new Response("Bad Request - invalid signature", { status: 401 });
     }
