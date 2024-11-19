@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.13.16",
-    "@noble/ed25519": "^2.1.0",
+    "discord-verify": "^1.2.0",
     "next": "15.0.1",
     "react": "19.0.0-rc-69d4b800-20241021",
     "react-dom": "19.0.0-rc-69d4b800-20241021"
