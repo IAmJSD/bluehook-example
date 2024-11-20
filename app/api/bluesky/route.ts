@@ -3,6 +3,7 @@ import { isValidRequest } from "discord-verify";
 
 // Defines how the shape of the request body should be.
 type RequestBody = {
+    cid: string;
     uri: string;
     post: AppBskyFeedPost.Record;
 };
